@@ -10,6 +10,7 @@ import { globSync } from 'glob';
 import { componentLookupInHbs, _convertToAngleBracketsName } from './src/utils.js'
 import { preprocess, Walker, print } from '@glimmer/syntax';
 import Chance from 'chance';
+import * as R from 'ramda';
 
 const chance = new Chance();
 const root = '/Users/rajasegarchandran/Code/unity_frontend';
@@ -48,12 +49,12 @@ function getComponentType(filepath) {
 
 function scanProject(component) {
   let hbsFiles = globSync(`${root}/app/**/*.hbs`)
-  let sampleRenders = [];
+  let sampleAsts = [];
   hbsFiles.forEach(file => {
     const data = readFileSync(file, 'utf-8')
     const result = componentLookupInHbs(data, component);
     if (result) {
-      console.log('Used in: ', file)
+      // console.log('Used in: ', file)
 
       let ast = preprocess(data);
       let walker = new Walker();
@@ -62,7 +63,7 @@ function scanProject(component) {
 
         let componentName = _convertToAngleBracketsName(component.name);
         if (node.type === 'ElementNode' && node.tag === componentName) {
-          sampleRenders.push(print(node))
+          sampleAsts.push(node)
         }
       });
 
@@ -70,7 +71,7 @@ function scanProject(component) {
 
     }
   })
-  return sampleRenders;
+  return sampleAsts;
 }
 
 async function main() {
@@ -88,21 +89,21 @@ async function main() {
         const hbsFound = existsSync(hbsFile)
         if (!testFound) {
           withoutTests.push(f);
-          // const ctype = getComponentType(componentFile)
-          // console.log(f, ctype)
-          // console.log('-----------------------------------')
-
         }
 
       })
     // console.log(withoutTests)
     // Pick one random component
-    const random = chance.pickone(withoutTests);
+    // const random = chance.pickone(withoutTests);
+    const random = 'ui-x-toggle'
     console.log('Random component: ', random)
 
-    const sampleUsage = scanProject({ name: random })
-    console.log(sampleUsage)
-    const testContent = templateFunc(random, sampleUsage);
+    const astNodes = scanProject({ name: random })
+    const uniqNodes = R.uniqBy(print, astNodes);
+    uniqNodes.forEach((n, i) => console.log(`${i} => `, print(n)))
+
+    // console.log(sampleUsage)
+    const testContent = templateFunc(random, uniqNodes);
     const newTestFile = `${integrationTests}/${random}-test.js`;
     writeFile(newTestFile, testContent)
       .catch(err => {
