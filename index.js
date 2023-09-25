@@ -1,6 +1,6 @@
 import { readdir, writeFile } from 'fs/promises';
 import { existsSync } from 'fs'
-import templateFunc from './template.js';
+import templateFunc from './src/template.js';
 import { parse } from '@babel/parser'
 import _traverse from "@babel/traverse";
 const traverse = _traverse.default;
@@ -16,6 +16,7 @@ const chance = new Chance();
 const root = '/Users/rajasegarchandran/Code/unity_frontend';
 const components = `${root}/app/components`;
 const integrationTests = `${root}/tests/integration/components`;
+const unitTests = `${root}/tests/unit/components`;
 const ignoreFiles = [
   '.DS_Store',
   '.gitkeep'
@@ -66,9 +67,6 @@ function scanProject(component) {
           sampleAsts.push(node)
         }
       });
-
-
-
     }
   })
   return sampleAsts;
@@ -83,32 +81,49 @@ async function main() {
       .forEach(f => {
         const componentFile = `${components}/${f}/component.js`
         const hbsFile = `${components}/${f}/template.hbs`
-        const testFile = `${integrationTests}/${f}-test.js`;
-        const testFound = existsSync(testFile)
+        const integrationTestFile = `${integrationTests}/${f}-test.js`;
+        const unitTestFile = `${unitTests}/${f}-test.js`;
+        const testFound = existsSync(integrationTestFile) || existsSync(unitTestFile)
         const componentJSFound = existsSync(componentFile)
-        const hbsFound = existsSync(hbsFile)
         if (!testFound) {
           withoutTests.push(f);
         }
 
       })
     // console.log(withoutTests)
+    writeFile("/Users/rajasegarchandran/Desktop/without-tests.txt", withoutTests.join('\n'));
     // Pick one random component
-    // const random = chance.pickone(withoutTests);
-    const random = 'ui-x-toggle'
+    const random = chance.pickone(withoutTests);
+    // const random = 'accessible-icon-element'
     console.log('Random component: ', random)
 
     const astNodes = scanProject({ name: random })
-    const uniqNodes = R.uniqBy(print, astNodes);
-    uniqNodes.forEach((n, i) => console.log(`${i} => `, print(n)))
 
-    // console.log(sampleUsage)
-    const testContent = templateFunc(random, uniqNodes);
-    const newTestFile = `${integrationTests}/${random}-test.js`;
-    writeFile(newTestFile, testContent)
-      .catch(err => {
-        console.error(err)
-      })
+    // Generate tests only if there is an existing usage at least once
+    if (astNodes.length > 0) {
+
+      const uniqNodes = R.uniqBy(print, astNodes);
+      uniqNodes.forEach((n, i) => console.log(`${i} => `, print(n)))
+
+      // console.log(sampleUsage)
+      const testContent = templateFunc(random, uniqNodes);
+      const newTestFile = `${integrationTests}/${random}-test.js`;
+      writeFile(newTestFile, testContent)
+        .catch(err => {
+          console.error(err)
+        })
+
+      const proc = Bun.spawn(["bun","run", "test:ember", `--filter=${random}`], {
+        cwd: root, // specify a working direcory
+        env: { ...process.env }, // specify environment variables
+        onExit(proc, exitCode, signalCode, error) {
+          // exit handler
+        },
+      });
+
+      const text = await new Response(proc.stdout).text();
+      console.log(text); // => "hello"
+    }
 
   } catch (e) {
     console.error(e);
