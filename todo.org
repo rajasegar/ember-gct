@@ -1,0 +1,34 @@
+* TODO
+
+** Statistics
+
+Total *routes* without tests: 158/200 ==> 79%
+Total controllers without tests: 13/19 ==> 68%
+Total mixins without tests: 69/100 ==> 69%
+Total services without tests: 19/87 ==> 22%
+Total helpers without tests: 48/80 ==> 60%
+Total utils without tests: 50/105 ==> 48%
+
+** Problems
+- No tests
+- Tests in wrong places
+- Duplicate tests
+
+** Components
+- Find out component tests where we don't need *setupComponentWithMirageTests*
+  - Results: Tests will be faster to run
+** Mixins
+
+** Routes
+
+** Utils
+
+** Helpers
+- Usage {{helper-name}}
+- Usage (helper-name)
+- External dependency , service injections
+  - Should we go for integration tests?
+
+** Controllers
+
+- Get stats for components without tests
