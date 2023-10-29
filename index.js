@@ -4,17 +4,17 @@ import templateFunc from './src/template.js';
 import { parse } from '@babel/parser';
 import _traverse from '@babel/traverse';
 const traverse = _traverse.default;
-import { ExportDefaultDeclaration } from '@babel/types';
 import { readFileSync } from 'node:fs';
 import { globSync } from 'glob';
 import {
   componentLookupInHbs,
   _convertToAngleBracketsName
 } from './src/utils.js';
-import {
-  generateHelperTests,
-  generateRouteTests
-} from './src/generateTests.js';
+import { generateHelperTests } from './src/generateTests.js';
+
+import * as prettier from 'prettier';
+
+import generateRouteTests from './src/generateRouteTests.js';
 import { preprocess, Walker, print } from '@glimmer/syntax';
 import Chance from 'chance';
 import * as R from 'ramda';
@@ -191,7 +191,8 @@ async function main() {
     );
     */
 
-    runMultipleRouteTests(unitTests, withoutTests);
+    runSingleRouteTest(unitTests, withoutTests);
+    // runMultipleRouteTests(unitTests, withoutTests);
 
     // runEmberTests(random);
   } catch (e) {
@@ -201,14 +202,22 @@ async function main() {
 
 async function runSingleRouteTest(unitTests, withoutTests) {
   const random = chance.pickone(withoutTests);
+  // const random = "web/settings/messenger/web";
   console.log('Random route: ', random);
-  const testContent = generateRouteTests(random);
+  const testContent = generateRouteTests(root, random);
 
   const newTestFile = `${unitTests}/routes/${random}-test.js`;
   console.log(newTestFile);
   // await Bun.write(newTestFile, testContent);
 
-  await writeFile(newTestFile, testContent);
+  // TODO: move this into a function and reuse
+  mkdir(dirname(newTestFile), { recursive: true }).then(async () => {
+    const formattedContent = await prettier.format(testContent, {
+      singleQuote: true,
+      parser: 'babel'
+    });
+    writeFile(newTestFile, formattedContent);
+  });
 }
 
 async function runMultipleRouteTests(unitTests, withoutTests) {

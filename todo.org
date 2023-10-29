@@ -20,6 +20,9 @@ Total utils without tests: 50/105 ==> 48%
 ** Mixins
 
 ** Routes
+- Mock services
+- Mock store api
+- Find out used model hooks and call them in tests
 
 ** Utils
 

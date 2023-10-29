@@ -18,6 +18,7 @@
     "@glimmer/syntax": "^0.84.3",
     "chance": "^1.1.11",
     "glob": "^10.3.4",
+    "prettier": "^3.0.3",
     "ramda": "^0.29.0"
   },
   "volta": {
