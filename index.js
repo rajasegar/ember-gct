@@ -15,6 +15,7 @@ import { generateHelperTests } from './src/generateTests.js';
 import * as prettier from 'prettier';
 
 import generateRouteTests from './src/generateRouteTests.js';
+import generateUtilTests from './src/generateUtilTests.js';
 import { preprocess, Walker, print } from '@glimmer/syntax';
 import Chance from 'chance';
 import * as R from 'ramda';
@@ -176,12 +177,12 @@ async function main() {
   let withoutTests = [];
 
   await findComponentsWithoutTests();
-  withoutTests = findItemsWithoutUnitTests('routes');
+  findItemsWithoutUnitTests('routes');
   findItemsWithoutUnitTests('controllers');
   findItemsWithoutUnitTests('mixins');
   findItemsWithoutUnitTests('services');
   await findHelpersWithoutTests(root);
-  findItemsWithoutUnitTests('utils');
+  withoutTests = findItemsWithoutUnitTests('utils');
 
   try {
     /*
@@ -191,13 +192,24 @@ async function main() {
     );
     */
 
-    runSingleRouteTest(unitTests, withoutTests);
+    runSingleUtilTest(unitTests, withoutTests);
     // runMultipleRouteTests(unitTests, withoutTests);
 
     // runEmberTests(random);
   } catch (e) {
     console.error(e);
   }
+}
+
+async function runSingleUtilTest(unitTests, withoutTests) {
+  const random = chance.pickone(withoutTests);
+  console.log('Random util: ', random);
+  const testContent = generateUtilTests(root, random);
+
+  const newTestFile = `${unitTests}/utils/${random}-test.js`;
+  console.log(newTestFile);
+
+  formatAndWrite(newTestFile, testContent);
 }
 
 async function runSingleRouteTest(unitTests, withoutTests) {
@@ -210,13 +222,16 @@ async function runSingleRouteTest(unitTests, withoutTests) {
   console.log(newTestFile);
   // await Bun.write(newTestFile, testContent);
 
-  // TODO: move this into a function and reuse
-  mkdir(dirname(newTestFile), { recursive: true }).then(async () => {
-    const formattedContent = await prettier.format(testContent, {
+  formatAndWrite(newTestFile, testContent);
+}
+
+function formatAndWrite(file, content) {
+  mkdir(dirname(file), { recursive: true }).then(async () => {
+    const formattedContent = await prettier.format(content, {
       singleQuote: true,
       parser: 'babel'
     });
-    writeFile(newTestFile, formattedContent);
+    writeFile(file, formattedContent);
   });
 }
 

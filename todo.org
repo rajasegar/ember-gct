@@ -25,6 +25,9 @@ Total utils without tests: 50/105 ==> 48%
 - Find out used model hooks and call them in tests
 
 ** Utils
+- Scan the util code
+- find out all the export named declaration
+- write tests for each
 
 ** Helpers
 - Usage {{helper-name}}

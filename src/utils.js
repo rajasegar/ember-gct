@@ -87,3 +87,13 @@ export function _uppercaseFirstLetter(string) {
 export function camelToSnakeCase(inputString) {
   return inputString.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
+
+export function capitalizedName(str) {
+  const [head, ...rest] = str.split('-');
+
+  const tail = rest.map(_uppercaseFirstLetter).join('');
+
+  const capitalizedName = head + tail;
+  return capitalizedName;
+
+}

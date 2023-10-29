@@ -2,7 +2,7 @@ import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import { readFileSync } from 'node:fs';
 import * as R from 'ramda';
-import { camelToSnakeCase } from './utils';
+import { camelToSnakeCase } from './utils.js';
 
 export default function generateRouteTests(root, name) {
   const filePath = `${root}/app/routes/${name}.js`;

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "bun run index.js"
+    "start": "node index.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,6 @@
     "ramda": "^0.29.0"
   },
   "volta": {
-    "node": "12.22.0"
+    "node": "16.20.2"
   }
 }
