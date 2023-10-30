@@ -177,12 +177,12 @@ async function main() {
   let withoutTests = [];
 
   await findComponentsWithoutTests();
-  findItemsWithoutUnitTests('routes');
+  withoutTests = findItemsWithoutUnitTests('routes');
   findItemsWithoutUnitTests('controllers');
   findItemsWithoutUnitTests('mixins');
   findItemsWithoutUnitTests('services');
   await findHelpersWithoutTests(root);
-  withoutTests = findItemsWithoutUnitTests('utils');
+  findItemsWithoutUnitTests('utils');
 
   try {
     /*
@@ -192,8 +192,8 @@ async function main() {
     );
     */
 
-    runSingleUtilTest(unitTests, withoutTests);
-    // runMultipleRouteTests(unitTests, withoutTests);
+    // runSingleUtilTest(unitTests, withoutTests);
+    runMultipleRouteTests(unitTests, withoutTests);
 
     // runEmberTests(random);
   } catch (e) {
@@ -229,23 +229,23 @@ function formatAndWrite(file, content) {
   mkdir(dirname(file), { recursive: true }).then(async () => {
     const formattedContent = await prettier.format(content, {
       singleQuote: true,
-      parser: 'babel'
+      parser: 'babel',
+      trailingComma: 'none'
     });
     writeFile(file, formattedContent);
   });
 }
 
 async function runMultipleRouteTests(unitTests, withoutTests) {
-  const random = chance.pick(withoutTests, 100);
-  random.forEach(async (r) => {
-    const testContent = generateRouteTests(r);
+  // const random = chance.pick(withoutTests, 10);
+  // random.forEach(async (r) => {
+  withoutTests.forEach(async (r) => {
+    const testContent = generateRouteTests(root, r);
 
     const newTestFile = `${unitTests}/routes/${r}-test.js`;
     console.log(newTestFile);
 
-    mkdir(dirname(newTestFile), { recursive: true }).then(() => {
-      writeFile(newTestFile, testContent);
-    });
+    formatAndWrite(newTestFile, testContent);
   });
 }
 

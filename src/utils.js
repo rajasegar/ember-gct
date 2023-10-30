@@ -5,22 +5,22 @@ export function componentLookupInHbs(data, component) {
 
   if (curlyBracesInvocation.match) {
     return {
-      fileType: "hbs",
-      type: "curly",
+      fileType: 'hbs',
+      type: 'curly'
     };
   }
 
   if (angleBracketsInvocation.match) {
     return {
-      fileType: "hbs",
-      type: "angle",
+      fileType: 'hbs',
+      type: 'angle'
     };
   }
 
   if (usesComponentHelper.match) {
     return {
-      fileType: "hbs",
-      type: "componentHelper",
+      fileType: 'hbs',
+      type: 'componentHelper'
     };
   }
 }
@@ -38,20 +38,20 @@ function angleBrackets(data, component) {
 }
 
 export function _convertToAngleBracketsName(componentName) {
-  let nestedParts = componentName.split("/");
+  let nestedParts = componentName.split('/');
 
   nestedParts = nestedParts.map((nestedPart) => {
-    let hasHyphenAsFirstCharacter = nestedPart.charAt(0) === "-";
-    let localParts = nestedPart.split("-");
+    let hasHyphenAsFirstCharacter = nestedPart.charAt(0) === '-';
+    let localParts = nestedPart.split('-');
 
     localParts = localParts.map(_uppercaseFirstLetter);
 
-    let localName = localParts.join("");
+    let localName = localParts.join('');
 
     return hasHyphenAsFirstCharacter ? `-${localName}` : localName;
   });
 
-  return nestedParts.join("::");
+  return nestedParts.join('::');
 }
 
 function componentHelper(data, component) {
@@ -60,7 +60,7 @@ function componentHelper(data, component) {
 }
 
 function _prepareResult(data, regex) {
-  let re = new RegExp(regex, "gi");
+  let re = new RegExp(regex, 'gi');
   let matches = data.match(re);
 
   let result = { regex };
@@ -73,7 +73,7 @@ function _prepareResult(data, regex) {
 }
 
 export function _uppercaseFirstLetter(string) {
-  let stringArr = string.split("");
+  let stringArr = string.split('');
 
   for (let i = 0; i < stringArr.length; i++) {
     if (/^[a-zA-Z]+$/.test(stringArr[i])) {
@@ -81,7 +81,7 @@ export function _uppercaseFirstLetter(string) {
       break;
     }
   }
-  return stringArr.join("");
+  return stringArr.join('');
 }
 
 export function camelToSnakeCase(inputString) {
@@ -89,11 +89,14 @@ export function camelToSnakeCase(inputString) {
 }
 
 export function capitalizedName(str) {
-  const [head, ...rest] = str.split('-');
+  if (typeof str === 'string' && str.includes('-')) {
+    const [head, ...rest] = str.split('-');
 
-  const tail = rest.map(_uppercaseFirstLetter).join('');
+    const tail = rest.map(_uppercaseFirstLetter).join('');
 
-  const capitalizedName = head + tail;
-  return capitalizedName;
-
+    const capitalizedName = head + tail;
+    return capitalizedName;
+  } else {
+    return str;
+  }
 }

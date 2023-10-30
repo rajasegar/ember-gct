@@ -1,10 +1,11 @@
 import { parse } from '@babel/parser';
-import traverse from '@babel/traverse';
+import _traverse from '@babel/traverse';
 import { readFileSync } from 'node:fs';
 import * as R from 'ramda';
-import { camelToSnakeCase } from './utils.js';
+import { camelToSnakeCase, capitalizedName } from './utils.js';
 
 export default function generateRouteTests(root, name) {
+  const traverse = _traverse.default;
   const filePath = `${root}/app/routes/${name}.js`;
   const serviceInjections = [];
   const modelHooks = [];
@@ -76,7 +77,8 @@ export default function generateRouteTests(root, name) {
     MemberExpression: function (path) {
       if (
         path.node.object.type === 'ThisExpression' &&
-        path.node.property.name === 'store'
+        path.node.property.name === 'store' &&
+        path.parent.property
       ) {
         const storeApi = path.parent.property.name;
         if (insideModelHook) {
@@ -162,7 +164,13 @@ module('Unit | Route | ${name}', function(hooks) {
 
     ${serviceInjections
       .map((service) => {
-        return `this.${service} = this.owner.lookup('service:${service}');`;
+        if (typeof service === 'string') {
+          return `this.${capitalizedName(
+            service
+          )} = this.owner.lookup('service:${service}');`;
+        } else {
+          return '';
+        }
       })
       .join('\n')}
 
@@ -184,9 +192,6 @@ module('Unit | Route | ${name}', function(hooks) {
     assert.ok(this.route);
   });
 
-  ${testsForModelHooks()}
-
-  
 
 });
 `;
