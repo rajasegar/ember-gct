@@ -100,3 +100,41 @@ export function capitalizedName(str) {
     return str;
   }
 }
+
+export async function runEmberTests(filter) {
+  const proc = Bun.spawn(['bun', 'run', 'test:ember', `--filter=${filter}`], {
+    cwd: root, // specify a working direcory
+    env: { ...process.env }, // specify environment variables
+    onExit(proc, exitCode, signalCode, error) {
+      // exit handler
+    }
+  });
+
+  const text = await new Response(proc.stdout).text();
+  console.log(text);
+}
+
+function findItemsWithoutUnitTests(item) {
+  const withoutTests = [];
+  try {
+    const itemsLocation = `${root}/app/${item}/`;
+    const items = globSync(`${root}/app/${item}/**/*.js`);
+    items.forEach((i) => {
+      const itemPath = i.replace(itemsLocation, '').replace('.js', '');
+      const testFile = `${unitTests}/${item}/${itemPath}-test.js`;
+      const testFound = existsSync(testFile);
+      if (!testFound) {
+        withoutTests.push(itemPath);
+      }
+    });
+
+    const percentage = Math.round((withoutTests.length / items.length) * 100);
+
+    console.log(
+      `Total ${item} without tests: ${withoutTests.length}/${items.length} ==> ${percentage}%`
+    );
+  } catch (err) {
+    console.error(err);
+  }
+  return withoutTests;
+}

@@ -14,6 +14,10 @@ Total utils without tests: 50/105 ==> 48%
 - Tests in wrong places
 - Duplicate tests
 
+** Phases:
+ - Phase 1: Generate test files with basic scaffolding
+ - Phase 2: Address coverage and missing lines in depth
+   
 ** Components
 - Find out component tests where we don't need *setupComponentWithMirageTests*
   - Results: Tests will be faster to run
