@@ -52,8 +52,8 @@ async function main() {
       withoutTests.join("\n")
     );
     */
-    runMultipleHelperTests(unitTests, withoutTests, root);
-    // runSingleHelperTest(unitTests, withoutTests, root);
+    // runMultipleHelperTests(unitTests, withoutTests, root);
+    runSingleHelperTest(unitTests, withoutTests, root);
     // runSingleUtilTest(unitTests, withoutTests);
     // runMultipleRouteTests(unitTests, withoutTests);
     // runEmberTests(random);
