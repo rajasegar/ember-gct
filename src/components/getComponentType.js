@@ -1,4 +1,9 @@
-function getComponentType(filepath) {
+import { existsSync, readFileSync } from 'fs';
+import { parse } from '@babel/parser';
+import _traverse from '@babel/traverse';
+const traverse = _traverse.default;
+
+export function getComponentType(filepath) {
   let ctype = 'glimmer';
   if (existsSync(filepath)) {
     const component = readFileSync(filepath, 'utf-8');

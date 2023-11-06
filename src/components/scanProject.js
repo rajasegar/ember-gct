@@ -1,4 +1,10 @@
-function scanProject(component) {
+import { globSync } from 'glob';
+import { readFileSync } from 'node:fs';
+import { componentLookupInHbs, _convertToAngleBracketsName } from '../utils.js';
+
+import { preprocess, Walker } from '@glimmer/syntax';
+
+export default function scanProject(component, root) {
   let hbsFiles = globSync(`${root}/app/**/*.hbs`);
   let sampleAsts = [];
   hbsFiles.forEach((file) => {

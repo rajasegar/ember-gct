@@ -1,4 +1,13 @@
-async function findComponentsWithoutTests() {
+import { existsSync } from 'fs';
+import { readdir } from 'node:fs/promises';
+
+export async function findComponentsWithoutTests(root) {
+  const ignoreFiles = ['.DS_Store', '.gitkeep'];
+
+  const components = `${root}/app/components`;
+  const integrationTests = `${root}/tests/integration/components`;
+  const unitTests = `${root}/tests/unit`;
+
   const files = await readdir(components);
   const componentsWithoutTests = [];
   files
